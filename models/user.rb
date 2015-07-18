@@ -15,6 +15,14 @@ class User
     all.select { |u| u.name.downcase == name.downcase }.first
   end
 
+  def self.create(name)
+    STORE.push(name)
+  end
+
+  def self.delete(name)
+    STORE.delete(name)
+  end
+
   class << self
     def all
       STORE.map { |name| User.new(name) }

@@ -11,14 +11,27 @@ module Jsonify
     def to_json
       ActiveSupport::JSON.encode(self)
     end
+
+    def from_json
+      ActiveSupport::JSON.decode(self)
+    end
   end
 end
 
 using Jsonify
 
 namespace '/users' do
+  post '' do
+    attrs = request.body.read.from_json
+    User.create(attrs['name'])
+    201
+  end
+
+  get '' do
+    User.all.to_json
+  end
+
   get '/top5' do
-    content_type :json
     fn_user = lambda{ |name|  User.find(name) }
     top5 = metrics.top_five_login.map(&fn_user).reject {|e| e.nil? }
     top5.to_json
@@ -42,6 +55,10 @@ namespace '/users' do
     status response
   end
 
+  delete '/:id' do
+    User.delete(params[:id])
+    200
+  end
 end
 
 def metrics
